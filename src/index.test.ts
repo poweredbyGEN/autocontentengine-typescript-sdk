@@ -326,6 +326,27 @@ describe("GenClient", () => {
         expect.objectContaining({ method: "DELETE" })
       );
     });
+
+    it("createContentResource should POST only public resource fields", async () => {
+      const fetchFn = mockFetch(201, {
+        content_resource: { id: "r1", url: "https://cdn.gen.pro/r1.png" },
+      });
+      const client = new GenClient({ apiKey: "key", fetch: fetchFn });
+      await client.createContentResource("a1", {
+        signed_id: "signed-1",
+        asset_folder_id: "folder-1",
+      });
+      expect(fetchFn).toHaveBeenCalledWith(
+        expect.stringContaining("/content_resources?agent_id=a1"),
+        expect.objectContaining({
+          method: "POST",
+          body: JSON.stringify({
+            content_resource: { file: "signed-1" },
+            asset_folder: { id: "folder-1" },
+          }),
+        })
+      );
+    });
   });
 
   describe("cells", () => {
@@ -512,6 +533,32 @@ describe("GenClient", () => {
       expect(fetchFn).toHaveBeenCalledWith(
         "https://agent.gen.pro/v1/agent/runs/run-1",
         expect.objectContaining({ method: "GET" })
+      );
+    });
+
+    it("approveRun should send approved true to the approve endpoint", async () => {
+      const fetchFn = mockFetch(200, { run_id: "run-1", status: "running" });
+      const client = new GenClient({ apiKey: "key", fetch: fetchFn });
+      await client.approveRun("run-1");
+      expect(fetchFn).toHaveBeenCalledWith(
+        "https://agent.gen.pro/v1/agent/runs/run-1/approve",
+        expect.objectContaining({
+          method: "POST",
+          body: JSON.stringify({ approved: true }),
+        })
+      );
+    });
+
+    it("rejectRun should send approved false to the approve endpoint", async () => {
+      const fetchFn = mockFetch(200, { run_id: "run-1", status: "failed" });
+      const client = new GenClient({ apiKey: "key", fetch: fetchFn });
+      await client.rejectRun("run-1");
+      expect(fetchFn).toHaveBeenCalledWith(
+        "https://agent.gen.pro/v1/agent/runs/run-1/approve",
+        expect.objectContaining({
+          method: "POST",
+          body: JSON.stringify({ approved: false }),
+        })
       );
     });
 

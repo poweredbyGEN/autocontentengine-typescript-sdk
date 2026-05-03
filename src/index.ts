@@ -189,7 +189,6 @@ export interface ContentResource {
 
 export interface ContentResourceDetail {
   content_resource: ContentResource;
-  project_node?: { id: number | string };
   generator?: { id: number | string; status: string; type: string } | null;
 }
 
@@ -621,7 +620,6 @@ export interface DirectUploadResult {
 
 export interface CreateContentResourceParams {
   signed_id: string;
-  project_id?: string;
   asset_folder_id?: string;
 }
 
@@ -1136,7 +1134,7 @@ export class GenClient {
    * @param agentId - The agent ID that owns the engine.
    * @param engineId - The engine ID.
    * @param cellId - The cell ID to generate content for.
-   * @param generationType - The type of generation (e.g. "text_generation", "gemini_image_generation", "gemini_video_generation", etc.).
+   * @param generationType - The canonical generation type (e.g. "text", "image_from_text", "video_from_text", etc.).
    * @param data - Optional generation-specific parameters (prompt, model, aspect_ratio, duration, voice_id, etc.).
    * @returns Object with generation_id and status.
    */
@@ -1392,7 +1390,18 @@ export class GenClient {
    * Approve a pending agent action.
    */
   async approveRun(runId: string): Promise<void> {
-    await this.agentRequest<unknown>("POST", `/agent/runs/${runId}/approve`);
+    await this.agentRequest<unknown>("POST", `/agent/runs/${runId}/approve`, {
+      approved: true,
+    });
+  }
+
+  /**
+   * Reject a pending agent action.
+   */
+  async rejectRun(runId: string): Promise<void> {
+    await this.agentRequest<unknown>("POST", `/agent/runs/${runId}/approve`, {
+      approved: false,
+    });
   }
 
   /**
@@ -1406,7 +1415,8 @@ export class GenClient {
 
   /**
    * Update the status of a content idea.
-   * Flow: generated -> approve_to_create -> ready_for_review -> approved -> published
+   * Flow: generated -> approve_to_create -> ready_for_review -> approved_to_post -> posted
+   * Edit/rejection statuses: change_idea, change_video, rejected.
    */
   async updateIdeaStatus(ideaId: string | number, status: string): Promise<void> {
     await this.agentRequest<unknown>(
@@ -2032,7 +2042,6 @@ export class GenClient {
     const body: Record<string, unknown> = {
       content_resource: { file: params.signed_id },
     };
-    if (params.project_id) body.project_node = { project_id: params.project_id };
     if (params.asset_folder_id) body.asset_folder = { id: params.asset_folder_id };
     return this.request<ContentResourceDetail>(
       "POST",
@@ -2370,6 +2379,7 @@ export function createSdk(client: GenClient) {
       getRunStatus: client.getRunStatus.bind(client),
       waitForRun: client.waitForRun.bind(client),
       approveRun: client.approveRun.bind(client),
+      rejectRun: client.rejectRun.bind(client),
       listIdeas: client.listIdeas.bind(client),
       updateIdeaStatus: client.updateIdeaStatus.bind(client),
       listConversations: client.listConversations.bind(client),
