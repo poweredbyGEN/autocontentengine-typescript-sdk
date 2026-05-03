@@ -245,7 +245,7 @@ await sdk.export.publishContent(agent.id, {
 
 ## Generation types
 
-Pass any of the canonical types to `generateContent`. Rails-internal names are resolved for you.
+Pass canonical types to `generateContent`. The SDK resolves the backend job shape for you.
 
 | Canonical | Key `data` fields |
 |-----------|-------------------|
@@ -257,8 +257,6 @@ Pass any of the canonical types to `generateContent`. Rails-internal names are r
 | `speech_from_text` | `script`, `voice_method`, `voice_id?` |
 | `lipsync` | `model`, `video_resource_id`, `audio_resource_id` |
 | `captions` | `model`, `source_resource_id` |
-
-Legacy Rails-internal names (`text_generation`, `gemini_image_generation`, `sora2_video_generation`, …) are still accepted unchanged.
 
 ## Error handling
 
@@ -292,7 +290,7 @@ Every method is available on both `client.methodName(...)` and on the matching n
 
 **Step 1 — `sdk.setup`:** `getMe`, `listWorkspaces`, `listAgents`, `createAgent`, `getAgent`, `updateAgent`, `deleteAgent`, `listOrganizations`, `createOrganization`, `getOrganization`, `updateOrganization`, `deleteOrganization`, `getAgentCore`, `patchAgentCore`, `addAgentInspiration`, `removeAgentInspiration`, `addAgentAccount`, `removeAgentAccount`, `getAgentProfile`, `createAgentProfile`, `updateAgentProfile`, `resetAgentProfile`, `listAgentAvatars`, `createAgentAvatar`, `deleteAgentAvatar`, `listAgentVoices`, `getElevenLabsStatus`, `connectElevenLabs`, `testElevenLabsKey`, `disconnectElevenLabs`, `generateVoiceScript`, `generateVoiceDescription`, `generateVoiceSamples`, `finalizeDesignedVoice`, `cloneVoice`, `deleteVoice`, `previewVoice`, `getVoicePreviewStatus`, `listApiKeys`, `createApiKey`, `revokeApiKey`.
 
-**Step 2 — `sdk.ideas`:** `generateIdeas`, `refineIdeas`, `setContentPreference`, `runResearch`, `getRunStatus`, `waitForRun`, `approveRun`, `listIdeas`, `updateIdeaStatus`, `listConversations`, `getConversation`, `deleteConversation`, `createMonitoringJob`, `updateMonitoringJob`.
+**Step 2 — `sdk.ideas`:** `generateIdeas`, `refineIdeas`, `setContentPreference`, `runResearch`, `getRunStatus`, `waitForRun`, `approveRun`, `rejectRun`, `listIdeas`, `updateIdeaStatus`, `listConversations`, `getConversation`, `deleteConversation`, `createMonitoringJob`, `updateMonitoringJob`.
 
 **Step 3 — `sdk.vidsheet`:** `listTemplates`, `getTemplate`, `cloneTemplate`, `createEngine`, `getEngine`, `cloneEngine`.
 
